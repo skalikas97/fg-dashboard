@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FG — Technical Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface2: #F1F0EC;
+  --border: #E3E2DE;
+  --border2: #D3D2CC;
+  --text: #1A1A19;
+  --muted: #787774;
+  --accent: #0B4F8A;
+  --accent-light: #E8F1FA;
+  --red: #C0392B; --red-bg: #FDECEA; --red-border: #F5C6C2;
+  --orange: #A04000; --orange-bg: #FEF3E2; --orange-border: #F5D9B0;
+  --yellow: #7D6008; --yellow-bg: #FEF9E2; --yellow-border: #F5E89B;
+  --green: #1E6B3A; --green-bg: #E8F8EF; --green-border: #A9DFBF;
+  --blue: #0B47A1; --blue-bg: #E3EFFE; --blue-border: #A8C5F7;
+  --grey-tag: #5A6072; --grey-bg: #F2F3F5; --grey-border: #CDD0D8;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --r: 5px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13.5px; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.55; }
+
+/* LAYOUT */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 220px; flex-shrink: 0; background: var(--surface2);
+  border-right: 1px solid var(--border); padding: 20px 0;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.main { flex: 1; max-width: 900px; padding: 32px 40px 60px; overflow-x: hidden; }
+
+/* SIDEBAR */
+.sb-logo { padding: 0 16px 16px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+.sb-logo-main { font-size: 13px; font-weight: 600; color: var(--text); }
+.sb-logo-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+.sb-section { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); padding: 10px 16px 4px; }
+.sb-item {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 16px; font-size: 12.5px; color: var(--text);
+  cursor: pointer; border-radius: 0; text-decoration: none;
+  transition: background 0.1s;
+}
+.sb-item:hover, .sb-item.active { background: var(--border); }
+.sb-item .ic { font-size: 13px; width: 18px; text-align: center; flex-shrink: 0; }
+.sb-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* HEADER */
+.pg-header { margin-bottom: 24px; }
+.pg-header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.4px; margin-bottom: 10px; }
+.props { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.prop {
+  font-size: 11.5px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 3px; padding: 2px 9px; color: var(--muted);
+}
+.prop b { color: var(--text); font-weight: 500; }
+
+/* ALERT */
+.alert {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--red-bg); border: 1px solid var(--red-border);
+  border-left: 4px solid var(--red); border-radius: var(--r);
+  padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: #7B1D1D;
+}
+.alert b { color: var(--red); }
+
+/* CALLOUT */
+.callout {
+  display: flex; gap: 9px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--r);
+  padding: 9px 13px; font-size: 12.5px; color: var(--text); margin: 5px 0;
+}
+
+/* SECTION (toggle) */
+.section { border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 6px; overflow: hidden; }
+.sec-hd {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; background: var(--surface);
+  cursor: pointer; user-select: none; border-bottom: 1px solid transparent;
+  transition: background 0.1s;
+}
+.sec-hd:hover { background: var(--surface2); }
+.sec-hd.open { border-bottom-color: var(--border); background: var(--surface2); }
+.sec-hd-title { font-size: 13px; font-weight: 500; flex: 1; }
+.arrow { font-size: 10px; color: var(--muted); transition: transform 0.15s; }
+.arrow.open { transform: rotate(90deg); }
+.sec-body { display: none; padding: 12px 14px; background: var(--surface); }
+.sec-body.open { display: block; }
+
+/* TAGS */
+.tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.t-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.t-ora { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.t-yel { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.t-grn { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.t-blu { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.t-gry { background: var(--grey-bg); color: var(--grey-tag); border: 1px solid var(--grey-border); }
+
+/* TABLES */
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.7px;
+  color: var(--muted); font-weight: 600; padding: 6px 10px;
+  border-bottom: 1px solid var(--border); text-align: left;
+  background: var(--surface2);
+}
+tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+.mono { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.mono-b { font-family: var(--mono); font-size: 11px; color: var(--red); font-weight: 600; }
+
+/* PHASE GRID */
+.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.phase-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.phase-head { padding: 8px 12px; font-size: 12px; font-weight: 600; color: #fff; }
+.ph-1 { background: #6C3483; }
+.ph-2 { background: #1A5276; }
+.ph-3 { background: #1D6A4A; }
+.phase-body { padding: 8px 10px; }
+.pi { display: flex; gap: 6px; align-items: flex-start; padding: 3px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+.pi:last-child { border-bottom: none; }
+.dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.dr { background: var(--red); } .do { background: #E67E22; } .db2 { background: #2980B9; } .dg { background: #27AE60; }
+
+/* SNAP GRID */
+.snap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 10px; }
+.snap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; border-top: 2px solid var(--accent); }
+.snap-l { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+.snap-v { font-size: 13px; font-weight: 600; }
+.snap-s { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* DECISION BOX */
+.dbox { background: #FFF9EC; border: 1px solid #E6BE5A; border-left: 4px solid #D4A017; border-radius: var(--r); padding: 12px 15px; margin: 7px 0; }
+.dbox-q { font-weight: 600; font-size: 13px; color: #7A5000; margin-bottom: 5px; }
+.dbox-t { font-size: 12.5px; color: #5C3D00; line-height: 1.6; }
+
+/* RISK TABLE */
+.risk-row td:first-child { font-weight: 600; min-width: 140px; }
+
+/* CONTACTS */
+.ct-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.ct { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 9px 11px; }
+.ct-role { font-size: 10.5px; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.ct-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.ct-info { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+/* CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: 5px; }
+.ci {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 9px 13px;
+  cursor: pointer; transition: background 0.1s;
+}
+.ci:hover { background: var(--border); }
+.ci.done { opacity: 0.5; }
+.ci.done .ci-text { text-decoration: line-through; color: var(--muted); }
+.ci-cb {
+  width: 16px; height: 16px; border-radius: 3px;
+  border: 1.5px solid var(--border2); background: var(--surface);
+  flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--accent); font-weight: 700;
+}
+.ci.done .ci-cb { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.ci-num { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); min-width: 22px; line-height: 1.2; }
+.ci-text strong { display: block; font-size: 13px; margin-bottom: 1px; }
+.ci-text span { font-size: 11.5px; color: var(--muted); }
+
+/* NET SHARES */
+.share-row { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.share-row:last-child { border-bottom: none; }
+.share-label { font-size: 12px; color: var(--muted); min-width: 100px; flex-shrink: 0; }
+.share-path { font-family: var(--mono); font-size: 11.5px; color: var(--accent); }
+
+/* PROGRESS */
+.progress-bar { background: var(--border); border-radius: 20px; height: 4px; width: 100%; margin-top: 4px; }
+.progress-fill { background: var(--accent); border-radius: 20px; height: 4px; }
+
+/* LABEL DIVIDER */
+.lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 600; margin: 12px 0 6px; display: flex; align-items: center; gap: 8px; }
+.lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* UTILS */
+.gap6 { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.req { font-family: var(--mono); font-size: 11px; background: var(--blue-bg); color: var(--blue); padding: 1px 7px; border-radius: 3px; border: 1px solid var(--blue-border); }
+.mt8 { margin-top: 8px; }
+.fw { font-weight: 600; }
+.sub { font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-main">🚢 Francesco Di Giorgio</div>
+    <div class="sb-logo-sub">IMO 9280201 · BV 03914G</div>
+  </div>
+  <div class="sb-section">Navigation</div>
+  <a class="sb-item active" href="#today"><span class="ic">✅</span>Today's Actions</a>
+  <a class="sb-item" href="#snapshot"><span class="ic">📊</span>Vessel Snapshot</a>
+  <a class="sb-item" href="#class"><span class="ic">🏛</span>Class & Surveys</a>
+  <a class="sb-item" href="#phases"><span class="ic">📅</span>Phase Plan</a>
+  <a class="sb-item" href="#items"><span class="ic">🔧</span>Open Items</a>
+  <a class="sb-item" href="#risks"><span class="ic">⚠</span>Risk Register</a>
+  <a class="sb-item" href="#decisions"><span class="ic">🎯</span>Decisions</a>
+  <a class="sb-item" href="#contacts"><span class="ic">📞</span>Contacts</a>
+
+  <div class="sb-section" style="margin-top:16px">Status</div>
+  <div class="sb-item"><div class="sb-dot" style="background:var(--red)"></div>MF/HF Unit — U/S</div>
+  <div class="sb-item"><div class="sb-dot" style="background:var(--red)"></div>ISM Audit — 05 Jun</div>
+  <div class="sb-item"><div class="sb-dot" style="background:var(--red)"></div>Crack Fr25 — Monitor</div>
+  <div class="sb-item"><div class="sb-dot" style="background:#E67E22"></div>Praxis — R29 Open</div>
+  <div class="sb-item"><div class="sb-dot" style="background:#E67E22"></div>Starting Air — Pending</div>
+  <div class="sb-item"><div class="sb-dot" style="background:#27AE60"></div>Surveys 08/04 — Done</div>
+  <div class="sb-item"><div class="sb-dot" style="background:#27AE60"></div>Tailshafts — Done</div>
+
+  <div class="sb-section" style="margin-top:16px">Network Shares</div>
+  <div class="sb-item" style="font-size:11px;color:var(--muted);cursor:default"><span class="ic">📁</span>S:\FG\13 Reports</div>
+  <div class="sb-item" style="font-size:11px;color:var(--muted);cursor:default"><span class="ic">📁</span>S:\FG\16 Fluids</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="pg-header" id="snapshot">
+    <h1>🚢 FG Handover — Technical Dashboard</h1>
+    <div class="props">
+      <div class="prop">IMO <b>9280201</b></div>
+      <div class="prop">BV Reg <b>03914G</b></div>
+      <div class="prop">Flag <b>Luxembourg · LXOI</b></div>
+      <div class="prop">Class <b>BV CS · AUT-UMS</b></div>
+      <div class="prop">TD <b>PSKO — from 03/05/2026</b></div>
+      <div class="prop">Previous TD <b>PUJN</b></div>
+      <div class="prop">Depart <b>11/05/2026 08:00 LT</b></div>
+      <div class="prop">Project start <b>15/05/2026</b></div>
+      <div class="prop">Duration <b>3–4 months</b></div>
+      <div class="prop">Project <b>Pulau Tekong Bite Area 2897</b></div>
+      <div class="prop">Sole dredger <b>YES</b></div>
+      <div class="prop">Idle <b>~2 years</b></div>
+    </div>
+    <div class="alert">
+      <span style="font-size:15px;flex-shrink:0">⚠</span>
+      <span><b>ISM Periodical Audit due 05 Jun 2026</b> — falls MID-PROJECT in Singapore. Not captured in PUJN handover. Must schedule with BV Singapore <b>this week</b>. Email: smsbelgium@bureauveritas.com</span>
+    </div>
+  </div>
+
+  <!-- SNAPSHOT -->
+  <div class="section" id="snap-sec">
+    <div class="sec-hd open" onclick="toggle(this)">
+      <span class="arrow open">▶</span>
+      <span class="sec-hd-title">📊 Vessel Snapshot</span>
+      <span class="tag t-grn">CoC: none · NCs: none · CS due &lt;6m: none</span>
+    </div>
+    <div class="sec-body open">
+      <div class="snap-grid">
+        <div class="snap"><div class="snap-l">Position</div><div class="snap-v">PT Idros Dolphin</div><div class="snap-s">Batam, Indonesia</div></div>
+        <div class="snap"><div class="snap-l">Propulsion</div><div class="snap-v">2× INDAR ACP-500 L6</div><div class="snap-s">2× Azimuth, 230 rpm</div></div>
+        <div class="snap"><div class="snap-l">Main GenSet</div><div class="snap-v">2× ABC — 2700 kW</div><div class="snap-s">INDAR BKZ-630, 690V</div></div>
+        <div class="snap"><div class="snap-l">Harbour / Emergency</div><div class="snap-v">CAT 3412 — 534 kW</div><div class="snap-s">CAT 3306 — 172 kW</div></div>
+        <div class="snap"><div class="snap-l">Automation</div><div class="snap-v">AMCS + Praxis IMC</div><div class="snap-s">Alewijnse</div></div>
+        <div class="snap"><div class="snap-l">Drives</div><div class="snap-v">Ingeteam VFD</div><div class="snap-s">Freq. converters</div></div>
+        <div class="snap"><div class="snap-l">Agent (Batam)</div><div class="snap-v">Karanaline</div><div class="snap-s">Rafles +62 821 6666 9522</div></div>
+        <div class="snap"><div class="snap-l">Fleet Manager</div><div class="snap-v">Peter Broes</div><div class="snap-s">WA: +32 470 9555 08</div></div>
+      </div>
+      <div class="callout">✅ <span>Surveys done 08/04/2026: Intermediate Hull · Underwater Bottom · PS & SB Tailshaft Modified · Cargo Gear Annual + Load Test</span></div>
+    </div>
+  </div>
+
+  <!-- CLASS -->
+  <div class="section" id="class">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">🏛 Class & Statutory Status</span>
+      <span class="tag t-red">1 URGENT</span>
+    </div>
+    <div class="sec-body">
+      <table>
+        <thead><tr><th>Survey / Audit</th><th>Last</th><th>Due</th><th>Window</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fw">ISM Periodical Audit</span></td>
+            <td class="mono">31/10/2025</td>
+            <td class="mono-b">05/06/2026</td>
+            <td class="mono">—</td>
+            <td><span class="tag t-red">URGENT</span></td>
+            <td>Email BV Singapore today</td>
+          </tr>
+          <tr>
+            <td>Annual Class/Stat (Hull, Mach, Auto, LL, SE, Radio, BWM…)</td>
+            <td class="mono">27/10/2025</td>
+            <td class="mono">12/08/2026</td>
+            <td class="mono">12 May – 12 Nov 2026</td>
+            <td><span class="tag t-blu">POST-PROJECT</span></td>
+            <td>Sep–Oct 2026 port call</td>
+          </tr>
+          <tr>
+            <td>Safety Equipment Annual</td>
+            <td class="mono">12/09/2024</td>
+            <td class="mono">12/08/2026</td>
+            <td class="mono">12 May – 12 Nov 2026</td>
+            <td><span class="tag t-blu">POST-PROJECT</span></td>
+            <td>Bundle with annual class survey</td>
+          </tr>
+          <tr>
+            <td>PS & SB Tailshaft Complete</td>
+            <td class="mono">21/05/2021</td>
+            <td class="mono">21/05/2031</td>
+            <td class="mono">—</td>
+            <td><span class="tag t-grn">OK</span></td>
+            <td>Modified done 08/04 ✅</td>
+          </tr>
+          <tr>
+            <td>Hull / Mach / Auto Renewal (DD)</td>
+            <td class="mono">12/08/2023</td>
+            <td class="mono">12/08/2028</td>
+            <td class="mono">12 May – 12 Aug 2028</td>
+            <td><span class="tag t-grn">OK</span></td>
+            <td>Target DD Q2/Q3 2028</td>
+          </tr>
+          <tr>
+            <td>ISM / ISPS / MLC Renewal</td>
+            <td class="mono">22/08/2023</td>
+            <td class="mono">19/08/2028</td>
+            <td class="mono">—</td>
+            <td><span class="tag t-grn">OK</span></td>
+            <td>Align with DD-2028</td>
+          </tr>
+          <tr>
+            <td>LSA Quinquennial Test</td>
+            <td class="mono">03/07/2023</td>
+            <td class="mono">~Jul 2028</td>
+            <td class="mono">—</td>
+            <td><span class="tag t-grn">OK</span></td>
+            <td>Bundle DD-2028</td>
+          </tr>
+          <tr>
+            <td>AIS / VDR / LSA Annual Tests</td>
+            <td class="mono">27/10/2025</td>
+            <td class="mono">~Oct 2026</td>
+            <td class="mono">—</td>
+            <td><span class="tag t-blu">POST-PROJECT</span></td>
+            <td>Annual class survey window</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout mt8">📌 <span><b>SOLAS II-1/3-13</b> (in force 01/01/2026): Pedestal crane + hopper lifting points — SWL test + permanent marking required at first renewal survey after Jan 2026. Add to <b>DD-2028 scope</b>.</span></div>
+    </div>
+  </div>
+
+  <!-- PHASES -->
+  <div class="section" id="phases">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">📅 3-Phase Execution Plan</span>
+      <span style="font-size:11.5px;color:var(--muted)">Batam → COS Singapore → Pulau Tekong</span>
+    </div>
+    <div class="sec-body">
+      <div class="phase-grid">
+        <div class="phase-card">
+          <div class="phase-head ph-1">Phase 1 · Batam · 03–11/05</div>
+          <div class="phase-body">
+            <div class="pi"><div class="dot dr"></div><div>MF/HF repair — book service today</div></div>
+            <div class="pi"><div class="dot dr"></div><div>PKKA + vessel clearance (Karanaline)</div></div>
+            <div class="pi"><div class="dot dr"></div><div>Hospital derogation — 3 BV cert reissues</div></div>
+            <div class="pi"><div class="dot dr"></div><div>Lub oil REQ 2024011188 — release today</div></div>
+            <div class="pi"><div class="dot do"></div><div>Bilge pump bowthruster (REQ 2024011189)</div></div>
+            <div class="pi"><div class="dot do"></div><div>Shore gen → vessel gens 08–09/05 + 24h load test</div></div>
+            <div class="pi"><div class="dot do"></div><div>Lock COS offload manifest by 06/05</div></div>
+            <div class="pi"><div class="dot db2"></div><div>Food stores 07/05 10:00</div></div>
+            <div class="pi"><div class="dot db2"></div><div>C/E walkdown — black-out recovery test</div></div>
+          </div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-head ph-2">Phase 2 · COS Singapore · 11–15/05</div>
+          <div class="phase-body">
+            <div class="pi"><div class="dot dr"></div><div>Offload spares for draft (C021-PO-000233)</div></div>
+            <div class="pi"><div class="dot dr"></div><div>Receive DISOLA M4015 (already at COS ✅)</div></div>
+            <div class="pi"><div class="dot do"></div><div>Praxis eng — PULL FORWARD to COS window</div></div>
+            <div class="pi"><div class="dot do"></div><div>ECDIS ↔ VDR ↔ Radar comms test</div></div>
+            <div class="pi"><div class="dot do"></div><div>Bowthruster bilge pump commissioning</div></div>
+            <div class="pi"><div class="dot do"></div><div>Receive AC1 + starting air compressors</div></div>
+            <div class="pi"><div class="dot db2"></div><div>QRAE gas detector (in SG office)</div></div>
+            <div class="pi"><div class="dot db2"></div><div>Crack Fr25 — UTM repeat baseline</div></div>
+            <div class="pi"><div class="dot db2"></div><div>MOB boat throttle bracket — proper fix</div></div>
+          </div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-head ph-3">Phase 3 · Project · 15/05–Sep 2026</div>
+          <div class="phase-body">
+            <div class="pi"><div class="dot dr"></div><div>ISM Audit — early Jun 2026 w/ BV SG</div></div>
+            <div class="pi"><div class="dot do"></div><div>Praxis R29 remarks — close within 2 weeks</div></div>
+            <div class="pi"><div class="dot do"></div><div>Crack Fr25 — weekly visual, monthly UTM</div></div>
+            <div class="pi"><div class="dot do"></div><div>INDAR motors — trend LO + cooling, Megger @200h</div></div>
+            <div class="pi"><div class="dot db2"></div><div>ABC engines — LO + fluid samples → S:\FG\16</div></div>
+            <div class="pi"><div class="dot db2"></div><div>Schottel retrofit — confirm post-project</div></div>
+            <div class="pi"><div class="dot db2"></div><div>Weekly TD report → S:\FG\13\01 Weekly</div></div>
+            <div class="pi"><div class="dot dg"></div><div>Annual class/stat survey — Sep/Oct 2026</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPEN ITEMS -->
+  <div class="section" id="items">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">🔧 Open Technical Items</span>
+      <span class="tag t-red">17 items · 4 critical</span>
+    </div>
+    <div class="sec-body">
+      <table>
+        <thead><tr><th>#</th><th>Item</th><th>REQ / PO</th><th>Priority</th><th>Window</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">01</td><td><span class="fw">MF/HF Control Unit (Sailor 6301) — U/S</span><br><span class="sub">Yanti +62 812 6800 6039 · Gabe +62 887 0808 6308</span></td><td>—</td><td><span class="tag t-red">CRITICAL</span></td><td>Before 11/05</td></tr>
+          <tr><td class="mono">02</td><td><span class="fw">Hospital derogation — 3 cert reissues</span><br><span class="sub">Safety Equip + Sewage + Garbage → smsbelgium@bureauveritas.com</span></td><td>—</td><td><span class="tag t-red">CRITICAL</span></td><td>Email today</td></tr>
+          <tr><td class="mono">03</td><td><span class="fw">Lub Oil Disola 15W-40 — REQ not released</span><br><span class="sub">Critical stock per Eric Raets. Push purchaser. COS fallback.</span></td><td><span class="req">REQ 2024011188</span></td><td><span class="tag t-red">CRITICAL</span></td><td>Today / COS</td></tr>
+          <tr><td class="mono">04</td><td><span class="fw">Crack Fr25 Aft Hopper Bulkhead</span><br><span class="sub">Doubler + UTM done. BV written acceptance needed. Plan repair Q4 2026</span></td><td>—</td><td><span class="tag t-red">CRITICAL</span></td><td>Monitor / repair Q4</td></tr>
+          <tr><td class="mono">05</td><td><span class="fw">Bilge discharge pump — Bowthruster room</span><br><span class="sub">New line fabricated ✅. Order submersible + float switch</span></td><td><span class="req">REQ 2024011189</span></td><td><span class="tag t-ora">HIGH</span></td><td>Before 11/05</td></tr>
+          <tr><td class="mono">06</td><td><span class="fw">Praxis retrofit — outstanding remarks R29</span><br><span class="sub">Pull engineer forward to COS, not first dredge cycle</span></td><td>—</td><td><span class="tag t-ora">HIGH</span></td><td>COS 11–15/05</td></tr>
+          <tr><td class="mono">07</td><td><span class="fw">AC1 Compressor — new ordered (SG local)</span></td><td><span class="req">REQ 2024011148</span></td><td><span class="tag t-ora">HIGH</span></td><td>COS 11–15/05</td></tr>
+          <tr><td class="mono">08</td><td><span class="fw">Starting Air Compressor — new, WP45L-100 (Aalst)</span><br><span class="sub">Pushed for earlier delivery. No redundancy if existing fails.</span></td><td><span class="req">REQ 2024011144</span></td><td><span class="tag t-ora">HIGH</span></td><td>COS / early project</td></tr>
+          <tr><td class="mono">09</td><td><span class="fw">ECDIS retrofit — VDR + radar comms check</span><br><span class="sub">Retrofit complete. Integration test outstanding.</span></td><td>—</td><td><span class="tag t-ora">HIGH</span></td><td>COS window</td></tr>
+          <tr><td class="mono">10</td><td><span class="fw">Offloading spares — COS Singapore (draft reduction)</span></td><td><span class="req">C021-PO-000233</span></td><td><span class="tag t-ora">HIGH</span></td><td>11/05 COS</td></tr>
+          <tr><td class="mono">11</td><td><span class="fw">STPM terminal box</span> — ordered, track ETA</td><td><span class="req">REQ 20693567</span></td><td><span class="tag t-yel">MEDIUM</span></td><td>Batam or COS</td></tr>
+          <tr><td class="mono">12</td><td><span class="fw">MOB boat throttle wire bracket</span> — temp fix only</td><td>—</td><td><span class="tag t-yel">MEDIUM</span></td><td>COS</td></tr>
+          <tr><td class="mono">13</td><td><span class="fw">Ametek pressure calibrator</span> — at AMETEK SG workshop, quote pending</td><td>—</td><td><span class="tag t-yel">MEDIUM</span></td><td>COS / project</td></tr>
+          <tr><td class="mono">14</td><td><span class="fw">Schottel retrofit</span> — parts at PT Idros. K1.16A cable quote pending<br><span class="sub">CE/FM agreed: after Singapore project</span></td><td><span class="req">AVB 2024011160</span></td><td><span class="tag t-gry">DEFERRED</span></td><td>Post-project</td></tr>
+          <tr><td class="mono">15</td><td><span class="fw">Hydraulic lines — draghead gantry renewal</span></td><td><span class="req">C062-PO-002172</span></td><td><span class="tag t-gry">DEFERRED</span></td><td>Post-project</td></tr>
+          <tr><td class="mono">16</td><td><span class="fw">Pedestal crane foundation + transverse beam</span><br><span class="sub">SOLAS 3-13 SWL test required. DD-2028 scope.</span></td><td>—</td><td><span class="tag t-gry">DEFERRED</span></td><td>DD-2028</td></tr>
+          <tr><td class="mono">17</td><td><span class="fw">X+S band radar renewal</span> — likely postponed (S-band repaired Nov 2025)<br><span class="sub">Adzo Bonafede following. VDR compat items pending.</span></td><td><span class="req">REQ 20613897</span></td><td><span class="tag t-gry">DEFERRED</span></td><td>TBC</td></tr>
+        </tbody>
+      </table>
+      <div class="lbl">Calibration tracking</div>
+      <div class="gap6">
+        <span class="tag t-grn">✅ Dosimeter → Aalst (in transit)</span>
+        <span class="tag t-grn">✅ QRAE gas detector → calibrated, SG office</span>
+        <span class="tag t-yel">⏳ Ametek calibrator → AMETEK SG, quote pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISKS -->
+  <div class="section" id="risks">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">⚠ Risk Register — Post-Idle</span>
+      <span class="tag t-red">6 risks</span>
+    </div>
+    <div class="sec-body">
+      <table>
+        <thead><tr><th>System</th><th>Risk (2yr idle)</th><th>Pre-emptive action</th><th>CS Ref</th></tr></thead>
+        <tbody>
+          <tr class="risk-row"><td><span class="fw">INDAR ACP-500 motors</span></td><td>Bearing condensation, insulation degradation</td><td>Megger test before first energization</td><td class="mono">CS #144–145</td></tr>
+          <tr class="risk-row"><td><span class="fw">Ingeteam freq. converters</span></td><td>Capacitor aging — reforming required</td><td>Reforming procedure + flush air/water coolers</td><td class="mono">CS #111–114</td></tr>
+          <tr class="risk-row"><td><span class="fw">Azimuth thruster seals</span></td><td>Static seals 2yr → water in gear oil</td><td>LO sample pre-sailing → file S:\FG\16</td><td class="mono">CS #121–128</td></tr>
+          <tr class="risk-row"><td><span class="fw">Crack Fr25 hopper bulkhead</span></td><td>Doubler is temp. Dredging stresses test repair. Sister TL: UTM memo Fr49–61</td><td>BV written acceptance + monthly UTM grid</td><td class="mono">Plan repair Q4 2026</td></tr>
+          <tr class="risk-row"><td><span class="fw">Starting air redundancy</span></td><td>New compressor (Aalst) not yet delivered</td><td>Confirm Aalst ETA within 2 days</td><td class="mono">CS #98–99</td></tr>
+          <tr class="risk-row"><td><span class="fw">Bottom door CIMS</span></td><td>Hydraulic seal degradation + position sensor drift</td><td>Pressure-hold test + CIMS recalibration in COS</td><td class="mono">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DECISIONS -->
+  <div class="section" id="decisions">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">🎯 Open Decisions</span>
+      <span class="tag t-ora">Answer needed by 05/05</span>
+    </div>
+    <div class="sec-body">
+      <div class="dbox">
+        <div class="dbox-q">Decision A — Praxis engineer: COS window vs. first dredge cycle?</div>
+        <div class="dbox-t">Handover says "when dredging starts." Risk: R29 remarks become production stoppages on a paid campaign.<br><b>Recommendation: Pull engineer forward to COS 11–14/05.</b> Confirm with JDN2PRAXIS coordinator by 05/05.</div>
+      </div>
+      <div class="dbox">
+        <div class="dbox-q">Decision B — Crack Fr25: repair Q4 2026 or defer to DD-2028?</div>
+        <div class="dbox-t">
+          Option 1 — Defer: accept doubler + quarterly UTM + BV written acceptance. Risk: crack growth under dredging load.<br>
+          Option 2 — Repair Q4 2026: 5–7 day window post-project, bundle with annual class survey (3 events, 1 off-hire).<br>
+          <b>Recommendation: Option 2.</b> Decide by 15/05 to start yard inquiry + BV scope alignment.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="section" id="contacts">
+    <div class="sec-hd" onclick="toggle(this)">
+      <span class="arrow">▶</span>
+      <span class="sec-hd-title">📞 Contacts & Network Shares</span>
+    </div>
+    <div class="sec-body">
+      <div class="ct-grid">
+        <div class="ct"><div class="ct-role">Chief Engineer</div><div class="ct-name">Jaksa</div><div class="ct-info">chief@fg.jandenul.com</div></div>
+        <div class="ct"><div class="ct-role">Captain</div><div class="ct-name">Enno</div><div class="ct-info">captain@fg.jandenul.com<br>+62 812 7053 873</div></div>
+        <div class="ct"><div class="ct-role">Electrician / ETO</div><div class="ct-name">Polniak Mateusz</div><div class="ct-info">elec@fg.jandenul.com</div></div>
+        <div class="ct"><div class="ct-role">Fleet Manager</div><div class="ct-name">Peter Broes</div><div class="ct-info">peter.broes@jandenul.com<br>WA: +32 470 9555 08</div></div>
+        <div class="ct"><div class="ct-role">Batam Agent — Karanaline</div><div class="ct-name">Rafles</div><div class="ct-info">jandenul@karanaline.com<br>+62 821 6666 9522</div></div>
+        <div class="ct"><div class="ct-role">Shore Gen PIC</div><div class="ct-name">Gaby / Kheren</div><div class="ct-info">+62 811 6913 788<br>+62 811 6913 780</div></div>
+        <div class="ct"><div class="ct-role">Radio Navigasi Indonesia</div><div class="ct-name">Yanti</div><div class="ct-info">+62 812 6800 6039</div></div>
+        <div class="ct"><div class="ct-role">Destini Marine Safety</div><div class="ct-name">Gabe</div><div class="ct-info">+62 887 0808 6308</div></div>
+        <div class="ct"><div class="ct-role">Bureau Veritas</div><div class="ct-name">BV Antwerp</div><div class="ct-info">smsbelgium@bureauveritas.com<br>move.bureauveritas.com</div></div>
+      </div>
+      <div class="lbl">Network shares</div>
+      <div class="share-row"><span class="share-label">All reports</span><span class="share-path">S:\Shared With Me\FG\13 Reports</span></div>
+      <div class="share-row"><span class="share-label">Weekly TD</span><span class="share-path">S:\Shared With Me\FG\13 Reports\01 Weekly reports TD</span></div>
+      <div class="share-row"><span class="share-label">Fluid analysis</span><span class="share-path">S:\Shared With Me\FG\16 Fluids analysis reports</span></div>
+      <div class="share-row"><span class="share-label">Praxis project</span><span class="share-path">S:\Shared With Me\FG\07 Conversion projects\2025-Praxis Upgrade to new system</span></div>
+      <div class="callout mt8">📅 <span>FM Teams call — 1st Thursday each month with TD + Capt + C/E. On request only, not mandatory for now.</span></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S ACTIONS -->
+  <div class="section" id="today" style="border-color:#C0392B">
+    <div class="sec-hd open" style="background:#FDECEA" onclick="toggle(this)">
+      <span class="arrow open">▶</span>
+      <span class="sec-hd-title" style="color:#C0392B">✅ Today's Actions — 03/05/2026</span>
+      <span class="tag t-red">Start now</span>
+    </div>
+    <div class="sec-body open">
+      <div class="checklist" id="cl">
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">01</div>
+          <div class="ci-text"><strong>Email BV Antwerp + BV Singapore — ISM Audit + hospital derogation certs</strong><span>smsbelgium@bureauveritas.com · Schedule ISM Audit early Jun · Request reissue of Safety Equip, Sewage, Garbage certs under derogation</span></div>
+        </div>
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">02</div>
+          <div class="ci-text"><strong>Call Yanti — book MF/HF service onboard 06–08/05</strong><span>Radio Navigasi Indonesia: +62 812 6800 6039 · Backup: Gabe Destini +62 887 0808 6308</span></div>
+        </div>
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">03</div>
+          <div class="ci-text"><strong>Push Purchasing — release REQ 2024011188 (Disola 15W-40)</strong><span>Critical stock per Eric Raets · COS fallback if Batam delivery fails</span></div>
+        </div>
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">04</div>
+          <div class="ci-text"><strong>1hr walkdown with C/E Jaksa — triage 13 open technical items</strong><span>Agree: which close in Batam / which carry to COS / which are post-project</span></div>
+        </div>
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">05</div>
+          <div class="ci-text"><strong>Lock COS offload manifest by 06/05 (C021-PO-000233)</strong><span>Confirm with Captain Enno + C/E · Coordinate lift plan + retour consolidation with COS warehouse</span></div>
+        </div>
+        <div class="ci" onclick="check(this)">
+          <div class="ci-cb"></div>
+          <div class="ci-num">06</div>
+          <div class="ci-text"><strong>Contact JDN2PRAXIS — propose Praxis eng COS window 11–14/05</strong><span>Decision A: pull engineer forward from "first dredge cycle" · Confirm by 05/05</span></div>
+        </div>
+      </div>
+      <div class="progress-bar mt8"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px" id="prog-label">0 / 6 actions completed</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+function toggle(hd) {
+  const arrow = hd.querySelector('.arrow');
+  const body = hd.nextElementSibling;
+  const isOpen = body.classList.toggle('open');
+  hd.classList.toggle('open', isOpen);
+  arrow.classList.toggle('open', isOpen);
+}
+function check(el) {
+  el.classList.toggle('done');
+  const cb = el.querySelector('.ci-cb');
+  cb.textContent = el.classList.contains('done') ? '✓' : '';
+  updateProgress();
+}
+function updateProgress() {
+  const items = document.querySelectorAll('#cl .ci');
+  const done = document.querySelectorAll('#cl .ci.done').length;
+  document.getElementById('prog').style.width = (done / items.length * 100) + '%';
+  document.getElementById('prog-label').textContent = done + ' / ' + items.length + ' actions completed';
+}
+document.querySelectorAll('.sb-item[href]').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

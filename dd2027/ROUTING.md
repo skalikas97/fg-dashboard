@@ -1,0 +1,3 @@
+# Routing schema (one line per built tab; addendum to pack/03)
+
+- X - Daily SOW - holds: jobs / scope items by yard letter category - not: spares, people, prices - key: Specs (col B), A.1 / A.1.1 - categories: A-X yard letters (15) - headers: Specs | Description | (Dept) | WL item | 3rd party | Crew | JDN WS | Remarks - Dept D/E/T - status: manual fill on Specs + Description, legend J2:J7 (Planned none / Ongoing FFFF00 / Completed 92D050 / TBC FFC000 / Cancelled/postponed FF0000 / All necessary parts on board 00B0F0) - dates: none in table; Rev dates and LastChange (H13, named) dd/mm/yyyy. Header row 15, data 16-105 (5 buffer rows per category), closing row 106.

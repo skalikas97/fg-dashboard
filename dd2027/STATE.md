@@ -19,8 +19,10 @@ T1 tabs and source file; T2 one or two workbooks; T3 category lists; T4 buffer r
 - 13/10/2026 template fidelity first, deviations OFF by default (instead of the 29/09 redesign proposal D1-D8).
 - 13/10/2026 build continues in Claude Code; repo folder `dd2027/`.
 
+## Inputs on hand
+- 4 reference .xlsx in `reference/` (13/10/2026, read only, local only - not pushed). Sheet names, freeze splits and package parts match pack 03 A0/A5/A7.
+
 ## Missing inputs
-- The 4 reference .xlsx (read only) -> `reference/`: AA_DAILY_SOW Afloat Repairs final, SO - SOW, SANTIAGO DOCKING, SO - COSTFILE - AXI SPLITUP. Needed for render comparison at construct.
 - `AI_DD2027_Yard_list_Rev02.xlsx`.
 - Full JDN code tree (300, 600); docking plan B0184000; predecessor masterfile.
 

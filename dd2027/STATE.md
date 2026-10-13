@@ -8,16 +8,18 @@ Phase 1: EMPTY PREDEFINED template, built 1:1 on the TS references (construction
 ## Tab board
 | Tab | Stage | Note |
 |---|---|---|
-| All tabs | Stage 1 open | Waiting T1-T10 |
+| X1 Daily SOW | Stage 1 proposed 13/10 | Waiting S1-S5 |
+| Other tabs | Stage 1 open | |
 | Yard list | Content draft | `AI_DD2027_Yard_list_Rev02.xlsx` (not in repo) |
 
-## Open decisions (put 13/10/2026)
-T1 tabs and source file; T2 one or two workbooks; T3 category lists; T4 buffer rows; T5 placeholders; T6 Planning grid start/days; T7 Planner scroll bar; T8 AA/SO style mix; T9 money-tab colour base; T10 Dept "T", "WL item", cost carrier. SOW D1-D8 (only if a deviation is wanted).
+## Open decisions
+Daily SOW S1-S5 (13/10). Planning start date + days. SOW D1-D8 only if wanted.
 
 ## Decisions log (TS-confirmed only)
 - 29/09/2026 method optimise -> construct -> content, sign-off per stage.
 - 13/10/2026 template fidelity first, deviations OFF by default (instead of the 29/09 redesign proposal D1-D8).
 - 13/10/2026 build continues in Claude Code; repo folder `dd2027/`.
+- 13/10/2026 T1 all reference tabs, TS removes (instead of a pre-selection). T2 two workbooks: X = execution/preparation (AA), C = commercial/during DD (SO) (instead of one). T3 categories = yard letters A-X (SO), AI extra jobs added later from AI files (instead of AA JDN groups). T4 15 Spares / 5 elsewhere / 10 Rev rows. T5 placeholders everywhere + one workbook-wide auto "last change" date shown on every tab (new; method S2). T6 35 days from one start-date cell. T7 Planner scroll bar reproduced as a real form control (instead of a plain input cell). T8 AA style governs both workbooks (instead of each tab its own). T9 SANTIAGO DOCKING colours D99694 / B9CDE5 (instead of COSTFILE F2AA84 / 83CBEB). T10 WL item = vessel work-list item raised by Master / Chief Engineer. Cost code [TS 13/10] "0080 (docking)-8038 (al idrisi) - XXX (category of cost)"; references write it 0080/8578/411 (Budget) and carrier 8579 (AXI) -> AI: 0080/8038/XXX, carrier 8038.
 
 ## Inputs on hand
 - 4 reference .xlsx in `reference/` (13/10/2026, read only, local only - not pushed). Sheet names, freeze splits and package parts match pack 03 A0/A5/A7.

@@ -6,14 +6,14 @@ Read first, update last. Keep about 2 KB. Pack: `pack/00`-`03b`. Last update: 13
 Phase 1: EMPTY PREDEFINED template, built 1:1 on the TS references (construction only, no job content). Deviations (D1-D8, A3 fixes, skill build-ins) OFF unless TS says yes. Phase 2 (content) later.
 
 ## Tab board
-| Tab | Stage | Note |
+| File | Tabs | State |
 |---|---|---|
-| X1 Daily SOW | Stage 2 built 13/10 | `out/AI_DD2027_Execution_Rev00.xlsx`, waiting sign-off + P1 |
-| Other tabs | Stage 1 open | |
-| Yard list | Content draft | `AI_DD2027_Yard_list_Rev02.xlsx` (not in repo) |
+| `out/AI_DD2027_Execution_Rev01.xlsx` | Daily SOW (master), Spares, Subcontractors-attendees, Planning | Built 13/10, waiting TS review |
+| `out/AI_DD2027_Commercial_Rev00.xlsx` | Costfile, AXI, Scaffolding, 3rd party Planner, 3rd parties, SOW final, SOW initial (master), Budget file | Built 13/10, waiting TS review |
+| Yard list | Content draft `AI_DD2027_Yard_list_Rev02.xlsx` (not in repo) | Phase 2 |
 
 ## Open decisions
-Daily SOW P1 print width (13/10). Planning start date + days. SOW D1-D8 only if wanted.
+Review of both files (TS removes tabs he does not want). Macro paste once per workbook (S1). Planning/Planner start dates are input cells. SOW D1-D8 only if wanted.
 
 ## Decisions log (TS-confirmed only)
 - 29/09/2026 method optimise -> construct -> content, sign-off per stage.
@@ -23,8 +23,10 @@ Daily SOW P1 print width (13/10). Planning start date + days. SOW D1-D8 only if 
 
 - 13/10/2026 Daily SOW: S1 last-change by macro, .xlsm, TS pastes once per workbook (instead of no auto date). S2 letters A-X on all execution tabs, keys A.1 / A.1.1 (instead of JDN groups). S3 header "WL item" (instead of AA "WO item"). S4 Dept D = Deck dept, E = Engine/Elec dept, T = Technical Superintendent. S5 title B2:E13, 10 Rev rows + Last change row 13, header row 15 (instead of B2:E8 / row 10).
 
+- 13/10/2026 TS: build all remaining tabs at once (instead of one tab per turn). P1 Daily SOW print fit to one page wide (default taken). Commercial master tab = SOW initial (proposal). Changes flagged to TS: SOW header "Remarks" (ref "Remakrs"), Costfile P6 "Final", "Amount With discount" uses the discount cell (ref 0.95 / 0.965 fixed), AXI linked inside the workbook (ref external link), IFERROR on empty-template divisions, Planner WORK DAYS = NETWORKDAYS, Planning letter colours = legend colours, Planning start date must be a Monday.
+
 ## Inputs on hand
-- 4 reference .xlsx in `reference/` (13/10/2026, read only, local only - not pushed). Sheet names, freeze splits and package parts match pack 03 A0/A5/A7.
+- 4 reference .xlsx in `reference/` and their extracted specs in `build/spec/` (13/10/2026, read only, local only - never pushed). Sheet names, freeze splits and package parts match pack 03 A0/A5/A7.
 
 ## Missing inputs
 - `AI_DD2027_Yard_list_Rev02.xlsx`.
